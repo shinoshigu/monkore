@@ -6,6 +6,23 @@ const createSimulation = require('../assets/js/simulation.js');
 const rules = createCharacters(data);
 const simulation = createSimulation(rules);
 
+test('ブラウザの言語の優先順と日本語へのフォールバック', () => {
+  const { preferredLanguage } = require('../assets/js/locale.js');
+  assert.equal(preferredLanguage(['fr-FR', 'en-GB', 'ja-JP']), 'en');
+  assert.equal(preferredLanguage(['JA-jp', 'en-US']), 'ja');
+  assert.equal(preferredLanguage(['de', 'ko-KR']), 'ja');
+  assert.equal(preferredLanguage([]), 'ja');
+});
+
+test('英語表示の全キャラを元と同じIDで選べる', () => {
+  assert.ok(rules.CATALOG.every(entry => typeof entry.nameEn === 'string' && entry.nameEn.trim()));
+  const labels = rules.CATALOG.map(entry => rules.catalogLabel(entry, 'en'));
+  assert.equal(new Set(labels).size, rules.CATALOG.length);
+  assert.equal(rules.catalogLabel(rules.CATALOG_BY_ID.typeZero, 'en'), 'Type-ZERO');
+  assert.equal(rules.catalogLabel(rules.CATALOG_BY_ID.typeZero), 'タイプ・ゼロ');
+  assert.equal(rules.catalogLabel(rules.CATALOG_BY_ID.n80, 'en'), 'No.80 Umbryx');
+});
+
 // The seven slots in the photographed formation, in their original order.
 const slots = [
   ['kubinight', 140, 0, 'awakened', '138M'],

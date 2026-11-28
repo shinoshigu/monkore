@@ -4,7 +4,7 @@ async function loadMoncolleCatalog() {
       const script = document.createElement('script');
       script.src = './assets/data/characters.local.js';
       script.onload = resolve;
-      script.onerror = () => reject(new Error('characters.local.js を開けませんでした'));
+      script.onerror = () => reject(new Error(moncolleLocale.t('characters.local.js を開けませんでした')));
       document.head.append(script);
     });
     return window.moncolleLocalCatalog;
@@ -25,6 +25,6 @@ async function loadMoncolleCatalog() {
     status.hidden = true;
   } catch (error) {
     console.error(error);
-    status.textContent = '計算機を起動できませんでした。' + error.message;
+    status.textContent = moncolleLocale.t('計算機を起動できませんでした。{0}', error.message);
   }
 })();

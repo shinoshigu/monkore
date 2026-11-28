@@ -1,6 +1,7 @@
 (() => {
   'use strict';
 
+  const { t } = typeof module === 'object' && module.exports ? require('./locale.js') : moncolleLocale;
   const threshold = 0.70;
   const levels = Array.from({length: 150}, (_, i) => i + 1);
   const limits = Array.from({length: 11}, (_, i) => i);
@@ -27,7 +28,7 @@
     const a = readAttack(strip, true), b = readAttack(card);
     if (b && a && a.value < 1000) return {...b, quality:0.76};
     if (a && b && (a.value !== b.value || a.step !== b.step)) {
-      return {alternatives:[a,b], conflict: '攻撃力の読みが ' + a.label + ' と ' + b.label + ' に分かれました'};
+      return {alternatives:[a,b], get conflict() { return t('攻撃力の読みが {0} と {1} に分かれました', a.label, b.label); }};
     }
     if (a || b) return {...(a || b), quality: a && b ? 0.98 : a ? (a.value < 1000 ? 0.55 : 0.86) : 0.76};
     return null;
@@ -57,8 +58,8 @@
     const hasForm = Boolean(api.mutations[entry.category]?.length);
     const canLimit = api.supportsLimitBreak(entry.category);
     const conflicts = [];
-    if (row.identity && row.identity !== entry.id) conflicts.push('名前・キャラ画像と不一致');
-    if (!canLimit && reliable(row.limit) && row.limit.value > 0) conflicts.push('凸の対象外のキャラに凸表示があります');
+    if (row.identity && row.identity !== entry.id) conflicts.push(t('名前・キャラ画像と不一致'));
+    if (!canLimit && reliable(row.limit) && row.limit.value > 0) conflicts.push(t('凸の対象外のキャラに凸表示があります'));
     const levelValues = reliable(row.level) ? [row.level.value] :
       row.plausibleLevels?.length ? row.plausibleLevels.map(c=>c.value) : levels;
     const limitValues = !canLimit ? [0] : reliable(row.limit) ? [row.limit.value] : limits;
@@ -94,11 +95,11 @@
       }
       if (exact) {
         if (!resolvedAttack) fields.push(['攻撃力', attack.quality]);
-      } else conflicts.push('表示攻撃力 ' + attack.label + ' と計算値が不一致');
+      } else conflicts.push(t('表示攻撃力 {0} と計算値が不一致', attack.label));
     }
     if (attack?.conflict) conflicts.push(attack.conflict);
     if (row.levelConflict && !(exact && name >= threshold && (reliable(mutation) || !hasForm))) {
-      conflicts.push(row.levelConflict);
+      conflicts.push(Array.isArray(row.levelConflict) ? t('Lv表示の読みが {0} と {1} に分かれました', ...row.levelConflict) : row.levelConflict);
     }
     fields.sort((a, b) => b[1] - a[1]);
     return {entry, fields, name, choices, exact, conflicts, mutation, modes, resolvedAttack};
@@ -115,9 +116,9 @@
     const matches = (m, l, c) => modes.some(p => fits(api.attackAtLevel(entry, m, l, c, p), row.attack));
     const fixes = [];
     for (const l of levels) if (matches(form, l, limit)) fixes.push('Lv' + l);
-    if (api.supportsLimitBreak(entry.category)) for (const c of limits) if (matches(form, row.level.value, c)) fixes.push(c + '凸');
-    for (const m of forms) if (matches(m.id, row.level.value, limit)) fixes.push(m.label);
-    return fixes.length ? '他を固定すると ' + fixes.slice(0, 4).join('／') + ' で攻撃力が一致' : '';
+    if (api.supportsLimitBreak(entry.category)) for (const c of limits) if (matches(form, row.level.value, c)) fixes.push(c + t('凸'));
+    for (const m of forms) if (matches(m.id, row.level.value, limit)) fixes.push(t(m.label));
+    return fixes.length ? t('他を固定すると {0} で攻撃力が一致', fixes.slice(0, 4).join(' / ')) : '';
   }
 
   function decide(api, row, candidates) {
@@ -138,8 +139,8 @@
       (best.name >= threshold || (best.exact && reliable(row.level) && best.modes.length === 1));
     const selected = accepted ? best : anchor || best || candidates[0];
     const reason = accepted ? '' : selected?.conflicts.length ? selected.conflicts.join('、')
-      : tiedPower || lead < 0.16 ? '同じ条件に合う候補が複数あります'
-      : 'キャラを絞れる手掛かりが不足しています';
+      : tiedPower || lead < 0.16 ? t('同じ条件に合う候補が複数あります')
+      : t('キャラを絞れる手掛かりが不足しています');
     const values = {};
     const inferred = [];
     if (selected) {
@@ -161,7 +162,7 @@
     return {id: accepted ? best.entry.id : '', values, inferred, reason,
       evidence: selected?.fields.slice(0,3).map(f => f[0]) || [],
       candidates: shortlist.slice(0, 4).map(c => c.entry),
-      detail: accepted && selected.resolvedAttack ? '攻撃力の読取候補のうち ' + selected.resolvedAttack + ' が他の項目と一致'
+      detail: accepted && selected.resolvedAttack ? t('攻撃力の読取候補のうち {0} が他の項目と一致', selected.resolvedAttack)
         : !accepted && anchor ? alternatives(api, row, anchor) : ''};
   }
 
@@ -185,7 +186,7 @@
     const visualLabel=api.mutations.normal.find(m=>m.id===observed?.value)?.label;
     return {...verdict,id:entry.id,reason:'',values:{level,limit:0},candidates:[entry],
       evidence:['名前','Lv','攻撃力'],inferred:reliable(row.level)?[]:['Lv'],
-      detail:(visualLabel?'背景は'+visualLabel+'、':'')+'表示攻撃力は'+form.label+'相当。変異を確認してください'};
+      detail:(visualLabel?t('背景は{0}、',t(visualLabel)):'')+t('表示攻撃力は{0}相当。変異を確認してください',t(form.label))};
   }
 
   // Enumerate only three roles per slot; all non-pair characters share the same
@@ -248,7 +249,7 @@
       const counts = new Set(plausible.map(layout => mixed.filter(i => layout.roles[i] === 'mikon').length));
       const count = [...counts][0];
       if (counts.size === 1 && count > 0 && count < mixed.length) {
-        groupNote = mixed.map(i => i+1).join('・') + '枠でミコン' + count + '体＋ポンジャ' + (mixed.length-count) + '体。位置を確認してください';
+        groupNote = t('{0}枠でミコン{1}体＋ポンジャ{2}体。位置を確認してください', mixed.map(i => i+1).join(', '), count, mixed.length-count);
       }
     }
     return prepared.map(({others, pairs}, i) => {
@@ -270,13 +271,13 @@
       if (mixed.includes(i)) {
         verdict.id = '';
         verdict.candidates = pairIds.map(id => pairs[id][0].entry);
-        verdict.reason = groupNote || 'ミコンとポンジャの位置を絞り切れません';
+        verdict.reason = groupNote || t('ミコンとポンジャの位置を絞り切れません');
         verdict.inferred = [];
       } else if (!plausible.length && (pairIds.includes(verdict.id) || pairIds.includes(row.identity))) {
         verdict.id = '';
-        verdict.reason = 'ミコン・ポンジャの編成人数と表示攻撃力が一致しません';
+        verdict.reason = t('ミコン・ポンジャの編成人数と表示攻撃力が一致しません');
       } else if (pairIds.includes(verdict.id) && pairIds.includes(row.identity) && verdict.id !== row.identity) {
-        verdict.detail = '名前の読みが食い違ったため、他の枠の相方と表示攻撃力で判定';
+        verdict.detail = t('名前の読みが食い違ったため、他の枠の相方と表示攻撃力で判定');
       }
       return reviewForm(api,row,verdict);
     });

@@ -122,560 +122,640 @@
       "no": 1,
       "name": "カピト",
       "category": "normal",
-      "modelId": "normal-01"
+      "modelId": "normal-01",
+      "nameEn": "Capito"
     },
     {
       "id": "n02",
       "no": 2,
       "name": "ビジー",
       "category": "normal",
-      "modelId": "normal-02"
+      "modelId": "normal-02",
+      "nameEn": "Bizzi"
     },
     {
       "id": "n03",
       "no": 3,
       "name": "チラップ",
       "category": "normal",
-      "modelId": "normal-03"
+      "modelId": "normal-03",
+      "nameEn": "Chirup"
     },
     {
       "id": "n04",
       "no": 4,
       "name": "ヴァミル",
       "category": "normal",
-      "modelId": "normal-04"
+      "modelId": "normal-04",
+      "nameEn": "Vamiru"
     },
     {
       "id": "n05",
       "no": 5,
       "name": "ジャモ",
       "category": "normal",
-      "modelId": "normal-05"
+      "modelId": "normal-05",
+      "nameEn": "Jammo"
     },
     {
       "id": "n06",
       "no": 6,
       "name": "スヌーリ",
       "category": "normal",
-      "modelId": "normal-06"
+      "modelId": "normal-06",
+      "nameEn": "Snooli"
     },
     {
       "id": "n07",
       "no": 7,
       "name": "ノクスブー",
       "category": "normal",
-      "modelId": "normal-07"
+      "modelId": "normal-07",
+      "nameEn": "Noxboo"
     },
     {
       "id": "n08",
       "no": 8,
       "name": "モルビ",
       "category": "normal",
-      "modelId": "normal-08"
+      "modelId": "normal-08",
+      "nameEn": "Morbi"
     },
     {
       "id": "n09",
       "no": 9,
       "name": "ブルーマ",
       "category": "normal",
-      "modelId": "normal-09"
+      "modelId": "normal-09",
+      "nameEn": "Blooma"
     },
     {
       "id": "n10",
       "no": 10,
       "name": "ミポラ",
       "category": "normal",
-      "modelId": "normal-10"
+      "modelId": "normal-10",
+      "nameEn": "Mipola"
     },
     {
       "id": "n11",
       "no": 11,
       "name": "グルディン",
       "category": "normal",
-      "modelId": "normal-11"
+      "modelId": "normal-11",
+      "nameEn": "Guldin"
     },
     {
       "id": "n12",
       "no": 12,
       "name": "モッシェル",
       "category": "normal",
-      "modelId": "normal-12"
+      "modelId": "normal-12",
+      "nameEn": "Mosshel"
     },
     {
       "id": "n13",
       "no": 13,
       "name": "リブル",
       "category": "normal",
-      "modelId": "normal-13"
+      "modelId": "normal-13",
+      "nameEn": "Libru"
     },
     {
       "id": "n14",
       "no": 14,
       "name": "クライマイト",
       "category": "normal",
-      "modelId": "normal-14"
+      "modelId": "normal-14",
+      "nameEn": "Crymite"
     },
     {
       "id": "n15",
       "no": 15,
       "name": "ノクスル",
       "category": "normal",
-      "modelId": "normal-15"
+      "modelId": "normal-15",
+      "nameEn": "Noxle"
     },
     {
       "id": "n16",
       "no": 16,
       "name": "ラスキー",
       "category": "normal",
-      "modelId": "normal-16"
+      "modelId": "normal-16",
+      "nameEn": "Rusky"
     },
     {
       "id": "n17",
       "no": 17,
       "name": "ノワロン",
       "category": "normal",
-      "modelId": "normal-17"
+      "modelId": "normal-17",
+      "nameEn": "Noiron"
     },
     {
       "id": "n18",
       "no": 18,
       "name": "グラセロス",
       "category": "normal",
-      "modelId": "normal-18"
+      "modelId": "normal-18",
+      "nameEn": "Glaceros"
     },
     {
       "id": "n19",
       "no": 19,
       "name": "タンコル",
       "category": "normal",
-      "modelId": "normal-19"
+      "modelId": "normal-19",
+      "nameEn": "Tunkor"
     },
     {
       "id": "n20",
       "no": 20,
       "name": "ウィズロ",
       "category": "normal",
-      "modelId": "normal-20"
+      "modelId": "normal-20",
+      "nameEn": "Wizlo"
     },
     {
       "id": "n21",
       "no": 21,
       "name": "メルカ",
       "category": "normal",
-      "modelId": "normal-21"
+      "modelId": "normal-21",
+      "nameEn": "Melca"
     },
     {
       "id": "n22",
       "no": 22,
       "name": "ベリン",
       "category": "normal",
-      "modelId": "normal-22"
+      "modelId": "normal-22",
+      "nameEn": "Berryn"
     },
     {
       "id": "n23",
       "no": 23,
       "name": "ラヴァロン",
       "category": "normal",
-      "modelId": "normal-23"
+      "modelId": "normal-23",
+      "nameEn": "Lavaron"
     },
     {
       "id": "n24",
       "no": 24,
       "name": "サブリクス",
       "category": "normal",
-      "modelId": "normal-24"
+      "modelId": "normal-24",
+      "nameEn": "Subrix"
     },
     {
       "id": "n25",
       "no": 25,
       "name": "グリンブル",
       "category": "normal",
-      "modelId": "normal-25"
+      "modelId": "normal-25",
+      "nameEn": "Grimble"
     },
     {
       "id": "n26",
       "no": 26,
       "name": "ブロントル",
       "category": "normal",
-      "modelId": "normal-26"
+      "modelId": "normal-26",
+      "nameEn": "Brontle"
     },
     {
       "id": "n27",
       "no": 27,
       "name": "ピリック",
       "category": "normal",
-      "modelId": "normal-27"
+      "modelId": "normal-27",
+      "nameEn": "Pyrrik"
     },
     {
       "id": "n28",
       "no": 28,
       "name": "ズンビー",
       "category": "normal",
-      "modelId": "normal-28"
+      "modelId": "normal-28",
+      "nameEn": "Zunbee"
     },
     {
       "id": "n29",
       "no": 29,
       "name": "ヴォルモラ",
       "category": "normal",
-      "modelId": "normal-29"
+      "modelId": "normal-29",
+      "nameEn": "Volmora"
     },
     {
       "id": "n30",
       "no": 30,
       "name": "クラビッツ",
       "category": "normal",
-      "modelId": "normal-30"
+      "modelId": "normal-30",
+      "nameEn": "Crabitz"
     },
     {
       "id": "n31",
       "no": 31,
       "name": "ドラムボル",
       "category": "normal",
-      "modelId": "normal-31"
+      "modelId": "normal-31",
+      "nameEn": "Drumbor"
     },
     {
       "id": "n32",
       "no": 32,
       "name": "グラクモー",
       "category": "normal",
-      "modelId": "normal-32"
+      "modelId": "normal-32",
+      "nameEn": "Glacmaw"
     },
     {
       "id": "n33",
       "no": 33,
       "name": "リブラスク",
       "category": "normal",
-      "modelId": "normal-33"
+      "modelId": "normal-33",
+      "nameEn": "Librusk"
     },
     {
       "id": "n34",
       "no": 34,
       "name": "ソルトート",
       "category": "normal",
-      "modelId": "normal-34"
+      "modelId": "normal-34",
+      "nameEn": "Soltort"
     },
     {
       "id": "n35",
       "no": 35,
       "name": "シェルゴン",
       "category": "normal",
-      "modelId": "normal-35"
+      "modelId": "normal-35",
+      "nameEn": "Shelgon"
     },
     {
       "id": "n36",
       "no": 36,
       "name": "グラセル",
       "category": "normal",
-      "modelId": "normal-36"
+      "modelId": "normal-36",
+      "nameEn": "Glacel"
     },
     {
       "id": "n37",
       "no": 37,
       "name": "シンダー",
       "category": "normal",
-      "modelId": "normal-37"
+      "modelId": "normal-37",
+      "nameEn": "Cindor"
     },
     {
       "id": "n38",
       "no": 38,
       "name": "フォスカ",
       "category": "normal",
-      "modelId": "normal-38"
+      "modelId": "normal-38",
+      "nameEn": "Phoska"
     },
     {
       "id": "n39",
       "no": 39,
       "name": "ティクレイル",
       "category": "normal",
-      "modelId": "normal-39"
+      "modelId": "normal-39",
+      "nameEn": "Tickrail"
     },
     {
       "id": "n40",
       "no": 40,
       "name": "ブラヴォクス",
       "category": "normal",
-      "modelId": "normal-40"
+      "modelId": "normal-40",
+      "nameEn": "Bravox"
     },
     {
       "id": "n41",
       "no": 41,
       "name": "トレヴェン",
       "category": "normal",
-      "modelId": "normal-41"
+      "modelId": "normal-41",
+      "nameEn": "Treven"
     },
     {
       "id": "n42",
       "no": 42,
       "name": "オウリス",
       "category": "normal",
-      "modelId": "normal-42"
+      "modelId": "normal-42",
+      "nameEn": "Owlice"
     },
     {
       "id": "n43",
       "no": 43,
       "name": "プルマイト",
       "category": "normal",
-      "modelId": "normal-43"
+      "modelId": "normal-43",
+      "nameEn": "Plumite"
     },
     {
       "id": "n44",
       "no": 44,
       "name": "ガルプラ",
       "category": "normal",
-      "modelId": "normal-44"
+      "modelId": "normal-44",
+      "nameEn": "Gulpra"
     },
     {
       "id": "n45",
       "no": 45,
       "name": "ユクル",
       "category": "normal",
-      "modelId": "normal-45"
+      "modelId": "normal-45",
+      "nameEn": "Yukrul"
     },
     {
       "id": "n46",
       "no": 46,
       "name": "マグジョー",
       "category": "normal",
-      "modelId": "normal-46"
+      "modelId": "normal-46",
+      "nameEn": "Magjaw"
     },
     {
       "id": "n47",
       "no": 47,
       "name": "カノトラ",
       "category": "normal",
-      "modelId": "normal-47"
+      "modelId": "normal-47",
+      "nameEn": "Cactora"
     },
     {
       "id": "n48",
       "no": 48,
       "name": "カクリダー",
       "category": "normal",
-      "modelId": "normal-48"
+      "modelId": "normal-48",
+      "nameEn": "Cakrider"
     },
     {
       "id": "n49",
       "no": 49,
       "name": "バストルフ",
       "category": "normal",
-      "modelId": "normal-49"
+      "modelId": "normal-49",
+      "nameEn": "Bastorh"
     },
     {
       "id": "n50",
       "no": 50,
       "name": "マグロン",
       "category": "normal",
-      "modelId": "normal-50"
+      "modelId": "normal-50",
+      "nameEn": "Magron"
     },
     {
       "id": "n51",
       "no": 51,
       "name": "ライムホーン",
       "category": "normal",
-      "modelId": "normal-51"
+      "modelId": "normal-51",
+      "nameEn": "Rimehorn"
     },
     {
       "id": "n52",
       "no": 52,
       "name": "ヴェルスコル",
       "category": "normal",
-      "modelId": "normal-52"
+      "modelId": "normal-52",
+      "nameEn": "Velscor"
     },
     {
       "id": "n53",
       "no": 53,
       "name": "ウィスプラ",
       "category": "normal",
-      "modelId": "normal-53"
+      "modelId": "normal-53",
+      "nameEn": "Wispra"
     },
     {
       "id": "n54",
       "no": 54,
       "name": "ヴィオルーン",
       "category": "normal",
-      "modelId": "normal-54"
+      "modelId": "normal-54",
+      "nameEn": "Viorune"
     },
     {
       "id": "n55",
       "no": 55,
       "name": "カヌーガ",
       "category": "normal",
-      "modelId": "normal-55"
+      "modelId": "normal-55",
+      "nameEn": "Cannuga"
     },
     {
       "id": "n56",
       "no": 56,
       "name": "フロスタ",
       "category": "normal",
-      "modelId": "normal-56"
+      "modelId": "normal-56",
+      "nameEn": "Frosta"
     },
     {
       "id": "n57",
       "no": 57,
       "name": "ライゾルド",
       "category": "normal",
-      "modelId": "normal-57"
+      "modelId": "normal-57",
+      "nameEn": "Rhyzold"
     },
     {
       "id": "n58",
       "no": 58,
       "name": "ルメロ",
       "category": "normal",
-      "modelId": "normal-58"
+      "modelId": "normal-58",
+      "nameEn": "Lumero"
     },
     {
       "id": "n59",
       "no": 59,
       "name": "ルージオン",
       "category": "normal",
-      "modelId": "normal-59"
+      "modelId": "normal-59",
+      "nameEn": "Lurzion"
     },
     {
       "id": "n60",
       "no": 60,
       "name": "ノクティル",
       "category": "normal",
-      "modelId": "normal-60"
+      "modelId": "normal-60",
+      "nameEn": "Noctil"
     },
     {
       "id": "n61",
       "no": 61,
       "name": "グロヴァルク",
       "category": "normal",
-      "modelId": "normal-61"
+      "modelId": "normal-61",
+      "nameEn": "Grovulk"
     },
     {
       "id": "n62",
       "no": 62,
       "name": "メデュリクス",
       "category": "normal",
-      "modelId": "normal-62"
+      "modelId": "normal-62",
+      "nameEn": "Medulix"
     },
     {
       "id": "n63",
       "no": 63,
       "name": "シャルドン",
       "category": "normal",
-      "modelId": "normal-63"
+      "modelId": "normal-63",
+      "nameEn": "Shardon"
     },
     {
       "id": "n64",
       "no": 64,
       "name": "ボルドラム",
       "category": "normal",
-      "modelId": "normal-64"
+      "modelId": "normal-64",
+      "nameEn": "Boldrum"
     },
     {
       "id": "n65",
       "no": 65,
       "name": "ドラクル",
       "category": "normal",
-      "modelId": "normal-65"
+      "modelId": "normal-65",
+      "nameEn": "Drakull"
     },
     {
       "id": "n66",
       "no": 66,
       "name": "フロッゴ",
       "category": "normal",
-      "modelId": "normal-66"
+      "modelId": "normal-66",
+      "nameEn": "Froggo"
     },
     {
       "id": "n67",
       "no": 67,
       "name": "バスティロン",
       "category": "normal",
-      "modelId": "normal-67"
+      "modelId": "normal-67",
+      "nameEn": "Bastiron"
     },
     {
       "id": "n68",
       "no": 68,
       "name": "パルフォーン",
       "category": "normal",
-      "modelId": "normal-68"
+      "modelId": "normal-68",
+      "nameEn": "Parfawn"
     },
     {
       "id": "n69",
       "no": 69,
       "name": "ビーザー",
       "category": "normal",
-      "modelId": "normal-69"
+      "modelId": "normal-69",
+      "nameEn": "Beazer"
     },
     {
       "id": "n70",
       "no": 70,
       "name": "ダスクリル",
       "category": "normal",
-      "modelId": "normal-70"
+      "modelId": "normal-70",
+      "nameEn": "Duskryl"
     },
     {
       "id": "n71",
       "no": 71,
       "name": "エンバーゴン",
       "category": "normal",
-      "modelId": "normal-71"
+      "modelId": "normal-71",
+      "nameEn": "Embergon"
     },
     {
       "id": "n72",
       "no": 72,
       "name": "ラヌビス",
       "category": "normal",
-      "modelId": "normal-72"
+      "modelId": "normal-72",
+      "nameEn": "Lanubis"
     },
     {
       "id": "n73",
       "no": 73,
       "name": "イーゴルン",
       "category": "normal",
-      "modelId": "normal-73"
+      "modelId": "normal-73",
+      "nameEn": "Aegorn"
     },
     {
       "id": "n74",
       "no": 74,
       "name": "フロゼア",
       "category": "normal",
-      "modelId": "normal-74"
+      "modelId": "normal-74",
+      "nameEn": "Frozair"
     },
     {
       "id": "n75",
       "no": 75,
       "name": "ドレッドラス",
       "category": "normal",
-      "modelId": "normal-75"
+      "modelId": "normal-75",
+      "nameEn": "Dredrus"
     },
     {
       "id": "n76",
       "no": 76,
       "name": "ルミドラ",
       "category": "normal",
-      "modelId": "normal-76"
+      "modelId": "normal-76",
+      "nameEn": "Lumidra"
     },
     {
       "id": "n77",
       "no": 77,
       "name": "ボルケルン",
       "category": "normal",
-      "modelId": "normal-77"
+      "modelId": "normal-77",
+      "nameEn": "Bolcairn"
     },
     {
       "id": "n78",
       "no": 78,
       "name": "アストラヴァ",
       "category": "normal",
-      "modelId": "normal-78"
+      "modelId": "normal-78",
+      "nameEn": "Astrava"
     },
     {
       "id": "n79",
       "no": 79,
       "name": "ルセルヴァン",
       "category": "normal",
-      "modelId": "normal-79"
+      "modelId": "normal-79",
+      "nameEn": "Lucervan"
     },
     {
       "id": "n80",
       "no": 80,
       "name": "アンブリクス",
       "category": "normal",
-      "modelId": "normal-80"
+      "modelId": "normal-80",
+      "nameEn": "Umbryx"
     },
     {
       "id": "nyarowin",
@@ -684,7 +764,8 @@
       "modelId": "legend-01",
       "hp": 3600000,
       "attack": 182000,
-      "character": "nyarowin"
+      "character": "nyarowin",
+      "nameEn": "Nyalloween"
     },
     {
       "id": "awakenedNyarowin",
@@ -693,7 +774,8 @@
       "modelId": "legend-02",
       "hp": 22500000,
       "attack": 1100000,
-      "character": "awakenedNyarowin"
+      "character": "awakenedNyarowin",
+      "nameEn": "Nyaloween EX"
     },
     {
       "id": "kabochild",
@@ -702,7 +784,8 @@
       "modelId": "legend-03",
       "hp": 3600000,
       "attack": 182000,
-      "character": "kabochild"
+      "character": "kabochild",
+      "nameEn": "Kabochild"
     },
     {
       "id": "kyonshina",
@@ -711,7 +794,8 @@
       "modelId": "legend-04",
       "hp": 32400000,
       "attack": 1620000,
-      "character": "kyonshina"
+      "character": "kyonshina",
+      "nameEn": "Kyonshina"
     },
     {
       "id": "yamata",
@@ -720,7 +804,8 @@
       "modelId": "legend-05",
       "hp": 139500000,
       "attack": 6900000,
-      "character": "yamata"
+      "character": "yamata",
+      "nameEn": "Yamatanokorochi"
     },
     {
       "id": "ayatsuritch",
@@ -729,7 +814,8 @@
       "modelId": "legend-06",
       "hp": 200900000,
       "attack": 10047000,
-      "character": "ayatsuritch"
+      "character": "ayatsuritch",
+      "nameEn": "Ayatsuritch"
     },
     {
       "id": "mikon",
@@ -738,7 +824,8 @@
       "modelId": "legend-07",
       "hp": 32400000,
       "attack": 1600000,
-      "character": "mikon"
+      "character": "mikon",
+      "nameEn": "Mikon"
     },
     {
       "id": "ponja",
@@ -747,7 +834,8 @@
       "modelId": "legend-08",
       "hp": 32400000,
       "attack": 1600000,
-      "character": "ponja"
+      "character": "ponja",
+      "nameEn": "Ponja"
     },
     {
       "id": "jk",
@@ -756,7 +844,8 @@
       "modelId": "legend-10",
       "hp": 167400000,
       "attack": 8370000,
-      "character": "jk"
+      "character": "jk",
+      "nameEn": "JK"
     },
     {
       "id": "kingNidra",
@@ -765,7 +854,8 @@
       "modelId": "legend-09",
       "hp": 416700000,
       "attack": 20837000,
-      "character": "kingNidra"
+      "character": "kingNidra",
+      "nameEn": "King Nidra"
     },
     {
       "id": "gomera",
@@ -774,7 +864,8 @@
       "modelId": "illusion-01",
       "hp": 587900,
       "attack": 29300,
-      "character": "none"
+      "character": "none",
+      "nameEn": "Gochamera"
     },
     {
       "id": "doppa",
@@ -783,7 +874,8 @@
       "modelId": "illusion-02",
       "hp": 3600000,
       "attack": 182000,
-      "character": "doppa"
+      "character": "doppa",
+      "nameEn": "Dopper"
     },
     {
       "id": "charlotte",
@@ -792,7 +884,8 @@
       "modelId": "illusion-03",
       "hp": 22500000,
       "attack": 1100000,
-      "character": "none"
+      "character": "none",
+      "nameEn": "Charlotte"
     },
     {
       "id": "lovril",
@@ -801,7 +894,8 @@
       "modelId": "illusion-04",
       "hp": 139500000,
       "attack": 6977000,
-      "character": "lovril"
+      "character": "lovril",
+      "nameEn": "Labril"
     },
     {
       "id": "kubinight",
@@ -810,7 +904,8 @@
       "modelId": "illusion-05",
       "hp": 241100000,
       "attack": 12055000,
-      "character": "kubinight"
+      "character": "kubinight",
+      "nameEn": "Kubiknight"
     },
     {
       "id": "typeZero",
@@ -818,7 +913,8 @@
       "category": "boss",
       "hp": 864000000,
       "attack": 43200000,
-      "character": "typeZero"
+      "character": "typeZero",
+      "nameEn": "Type-ZERO"
     }
   ]
 }

@@ -39,9 +39,20 @@ function initializeMoncolleImageImport(api) {
   const VISION_RUNTIME = 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.23.2/dist/';
   const VISION_CONFIG = './assets/model/character-classifier.json';
 
-  function setStatus(message) {
-    status.textContent = message;
+  const { t } = moncolleLocale;
+  let lastStatus;
+  function setStatus(message, ...values) {
+    lastStatus = [message, ...values];
+    status.textContent = t(message, ...values.map(value => typeof value === 'string' ? t(value) : value));
   }
+
+  window.addEventListener('moncolle-language', () => {
+    if (lastStatus) setStatus(...lastStatus);
+    if (recognized.length && !resultsBox.hidden) {
+      reconcileParty();
+      renderResults();
+    }
+  });
 
   function loadImage(file) {
     return new Promise((resolve, reject) => {
@@ -177,7 +188,7 @@ function initializeMoncolleImageImport(api) {
     ocrWorker = await window.Tesseract.createWorker(['jpn', 'eng'], 1, {
       logger(message) {
         if (!message.progress) return;
-        setStatus(`OCR準備中… ${Math.round(message.progress * 100)}%`);
+        setStatus('OCR準備中… {0}%', Math.round(message.progress * 100));
       },
     });
     await ocrWorker.setParameters({
@@ -644,15 +655,21 @@ function initializeMoncolleImageImport(api) {
 
   function catalogAliases(entry) {
     const aliases = [{ text: entry.name, mutation: 'normal' }];
+    if (entry.nameEn && entry.nameEn !== entry.name) aliases.push({ text: entry.nameEn, mutation: 'normal' });
     if (entry.category === 'illusion') {
       aliases.push(
         { text: `闇${entry.name}`, mutation: 'dark' },
         { text: `漆黒${entry.name}`, mutation: 'dark' },
         { text: `覚醒${entry.name}`, mutation: 'awakened' },
       );
+      if (entry.nameEn) aliases.push(
+        { text: 'Dark ' + entry.nameEn, mutation: 'dark' },
+        { text: entry.nameEn + ' EX', mutation: 'awakened' },
+      );
     }
-    return aliases;
+    return aliases.map(alias => ({ ...alias, normalized: normalizeText(alias.text) }));
   }
+  const aliasesById = new Map(api.catalog.map(entry => [entry.id, catalogAliases(entry)]));
 
   function rankCatalog(text) {
     const sources = String(text || '')
@@ -666,9 +683,10 @@ function initializeMoncolleImageImport(api) {
     const matches = [];
     for (const entry of api.catalog) {
       let best = { entry, mutation: 'normal', score: 0 };
-      for (const alias of catalogAliases(entry)) {
-        const needle = normalizeText(alias.text);
+      for (const alias of aliasesById.get(entry.id)) {
+        const needle = alias.normalized;
         for (const source of sources) {
+          if (/^[A-Z]+$/.test(needle) && !/[A-Z]/.test(source)) continue;
           const fullScore = 1 - levenshtein(source, needle) / Math.max(source.length, needle.length);
           const partialCap = needle.length <= 3 ? 0.55 : needle.length <= 4 ? 0.68 : 0.84;
           const partialScore = similarityWithin(source, needle) * partialCap;
@@ -900,16 +918,20 @@ function initializeMoncolleImageImport(api) {
     if (entry.category === 'normal') return classifyNormalMutation(rowCanvas, index);
     if (entry.category !== 'illusion') return { mutation: 'normal', confidence: 0 };
     const normalizedNames = nameTexts.filter(Boolean).map(normalizeText);
-    const awakenedVotes = normalizedNames.filter(text => text.includes('覚醒')).length;
-    const darkVotes = normalizedNames.filter(text => text.includes('闇') || text.includes('漆黒')).length;
+    const baseNames = [entry.name, entry.nameEn].filter(Boolean).map(normalizeText);
+    const english = entry.nameEn && normalizeText(entry.nameEn);
+    const awakened = text => text.includes('覚醒') || (english && text.includes(english + 'EX'));
+    const dark = text => text.includes('闇') || text.includes('漆黒') || (english && text.includes('DARK' + english));
+    const awakenedVotes = normalizedNames.filter(awakened).length;
+    const darkVotes = normalizedNames.filter(dark).length;
     if (awakenedVotes > darkVotes && awakenedVotes > 0) return { mutation: 'awakened', confidence: 0.99 };
     if (darkVotes > awakenedVotes && darkVotes > 0) return { mutation: 'dark', confidence: 0.99 };
     const fallback = normalizeText(fallbackText);
-    if (fallback.includes('覚醒') && !fallback.includes('漆黒')) return { mutation: 'awakened', confidence: 0.93 };
-    if ((fallback.includes('闇') || fallback.includes('漆黒')) && !fallback.includes('覚醒')) {
+    if (awakened(fallback) && !dark(fallback)) return { mutation: 'awakened', confidence: 0.93 };
+    if (dark(fallback) && !awakened(fallback)) {
       return { mutation: 'dark', confidence: 0.93 };
     }
-    const bare = normalizedNames.filter(text => text === normalizeText(entry.name)).length;
+    const bare = normalizedNames.filter(text => baseNames.includes(text)).length;
     if (bare >= 2) return {mutation:'normal', confidence:0.84};
     background ||= classifyNormalMutation(rowCanvas, index);
     if (background.mutation === 'rainbow' && background.confidence >= 0.9) {
@@ -918,7 +940,7 @@ function initializeMoncolleImageImport(api) {
     if (background.mutation === 'dark' && background.confidence >= 0.88) {
       return { mutation: 'dark', confidence: 0.86 };
     }
-    const repeatedBaseName = nameTexts.filter(textPart => normalizeText(textPart).includes(normalizeText(entry.name))).length;
+    const repeatedBaseName = normalizedNames.filter(text => baseNames.some(name => text.includes(name))).length;
     return { mutation: 'normal', confidence: repeatedBaseName >= 2 ? 0.88 : 0.55 };
   }
 
@@ -991,10 +1013,10 @@ function initializeMoncolleImageImport(api) {
   }
 
   function addCatalogOptions(select) {
-    select.add(new Option('要確認・キャラを選択', ''));
+    select.add(new Option(t('要確認・キャラを選択'), ''));
     for (const [category, label] of Object.entries(api.categoryLabels)) {
       const group = document.createElement('optgroup');
-      group.label = label;
+      group.label = t(label);
       for (const entry of api.catalog.filter(item => item.category === category)) {
         group.append(new Option(entry.label, entry.id));
       }
@@ -1006,8 +1028,8 @@ function initializeMoncolleImageImport(api) {
     const entry = byCatalogId.get(item.catalogId);
     const options = api.mutations[entry?.category] || [{id:'normal', label:'—'}];
     select.replaceChildren();
-    if (options.length > 1) select.add(new Option('変異を確認', ''));
-    for (const option of options) select.add(new Option(option.label, option.id));
+    if (options.length > 1) select.add(new Option(t('変異を確認'), ''));
+    for (const option of options) select.add(new Option(t(option.label), option.id));
     select.value = options.length === 1 ? options[0].id : item.mutation;
     item.mutation = select.value;
     select.disabled = options.length === 1;
@@ -1024,7 +1046,7 @@ function initializeMoncolleImageImport(api) {
   function updateApplyButton() {
     const count = recognized.filter(readyToApply).length;
     applyButton.disabled = count === 0;
-    applyButton.textContent = count ? `選択済みの${count}体を編成に反映` : '反映するキャラを確認してください';
+    applyButton.textContent = count ? t`選択済みの${count}体を編成に反映` : t('反映するキャラを確認してください');
   }
 
   function reconcileParty() {
@@ -1042,6 +1064,10 @@ function initializeMoncolleImageImport(api) {
     });
   }
 
+  function fieldList(fields) {
+    return fields.map(field => t(field)).join(moncolleLocale.language === 'en' ? ', ' : '・');
+  }
+
   function renderResults() {
     resultRows.replaceChildren();
     recognized.forEach((item, index) => {
@@ -1055,13 +1081,13 @@ function initializeMoncolleImageImport(api) {
 
       const catalog = document.createElement('select');
       catalog.className = 'import-catalog';
-      catalog.setAttribute('aria-label', `画像のキャラ${index + 1}`);
+      catalog.setAttribute('aria-label', t`画像のキャラ${index + 1}`);
       addCatalogOptions(catalog);
       catalog.value = item.catalogId;
 
       const mutation = document.createElement('select');
       mutation.className = 'import-mutation';
-      mutation.setAttribute('aria-label', `画像のキャラ${index + 1}の変異`);
+      mutation.setAttribute('aria-label', t`画像のキャラ${index + 1}の変異`);
       setMutationOptions(mutation, item);
 
       const level = document.createElement('input');
@@ -1070,7 +1096,7 @@ function initializeMoncolleImageImport(api) {
       level.min = '1';
       level.max = '150';
       level.value = String(item.level);
-      level.setAttribute('aria-label', `画像のキャラ${index + 1}のレベル`);
+      level.setAttribute('aria-label', t`画像のキャラ${index + 1}のレベル`);
 
       const limit = document.createElement('input');
       limit.className = 'import-limit';
@@ -1078,29 +1104,29 @@ function initializeMoncolleImageImport(api) {
       limit.min = '0';
       limit.max = '10';
       limit.value = String(item.limitBreak);
-      limit.setAttribute('aria-label', `画像のキャラ${index + 1}の凸数`);
+      limit.setAttribute('aria-label', t`画像のキャラ${index + 1}の凸数`);
 
       const raw = document.createElement('div');
       raw.className = 'raw';
       const {verdict, observation} = item;
-      const summary = verdict.evidence.length ? '照合項目 ' + verdict.evidence.join('・') : '';
-      const matching = !verdict.id && verdict.candidates.length ? '候補 ' + verdict.candidates.map(c => c.name).join('／') : '';
+      const summary = verdict.evidence.length ? t('照合項目 {0}', fieldList(verdict.evidence)) : '';
+      const matching = !verdict.id && verdict.candidates.length ? t('候補 {0}', verdict.candidates.map(c => c.label).join(' / ')) : '';
       const missing = verdict.id ? [item.level === '' && 'Lv', item.limitBreak === '' && '凸', !item.mutation && '変異'].filter(Boolean) : [];
       if (!verdict.id && verdict.candidates.length) {
         const group = document.createElement('optgroup');
-        group.label = '照合候補';
+        group.label = t('照合候補');
         for (const entry of verdict.candidates) group.append(new Option(entry.label, entry.id));
         catalog.insertBefore(group, catalog.children[1]);
       }
-      raw.textContent = [verdict.reason && '要確認　' + verdict.reason, missing.length && '要確認　' + missing.join('・'), matching, verdict.detail, summary,
-        observation.attack?.label && '読取攻撃力 ' + observation.attack.label,
-        verdict.inferred.length && '計算から推定　' + verdict.inferred.join('・')].filter(Boolean).join('｜');
-      level.placeholder = 'Lv確認';
-      limit.placeholder = '凸確認';
-      if (item.edited) raw.textContent = ['手動で編集中', observation.attack?.label && '読取攻撃力 ' + observation.attack.label].filter(Boolean).join('｜');
+      raw.textContent = [verdict.reason && t('要確認　{0}', verdict.reason), missing.length && t('要確認　{0}', fieldList(missing)), matching, verdict.detail, summary,
+        observation.attack?.label && t('読取攻撃力 {0}', observation.attack.label),
+        verdict.inferred.length && t('計算から推定　{0}', fieldList(verdict.inferred))].filter(Boolean).join('｜');
+      level.placeholder = t('Lv確認');
+      limit.placeholder = t('凸確認');
+      if (item.edited) raw.textContent = [t('手動で編集中'), observation.attack?.label && t('読取攻撃力 {0}', observation.attack.label)].filter(Boolean).join('｜');
       const edited = () => {
         item.edited = true;
-        raw.textContent = ['手動で編集中', observation.attack?.label && '読取攻撃力 ' + observation.attack.label].filter(Boolean).join('｜');
+        raw.textContent = [t('手動で編集中'), observation.attack?.label && t('読取攻撃力 {0}', observation.attack.label)].filter(Boolean).join('｜');
         updateApplyButton();
       };
       catalog.addEventListener('change', () => {
@@ -1177,7 +1203,7 @@ function initializeMoncolleImageImport(api) {
       }
       const nameRecords = [];
       for (let index = 0; index < 7; index += 1) {
-        setStatus(`キャラ${index + 1}/7の名前を読み取っています…`);
+        setStatus('キャラ{0}/7の名前を読み取っています…', index + 1);
         const nameTexts = [];
         for (const variant of ['strict', 'loose', 'adaptive']) {
           nameTexts.push(await recognizeText(worker, makeNameCanvas(preview, index, variant), { pageMode: '7' }));
@@ -1193,7 +1219,7 @@ function initializeMoncolleImageImport(api) {
       for (const record of nameRecords) {
         const { index, nameTexts, decision } = record;
         const visualDecision = visualPredictions[index];
-        setStatus(`キャラ${index + 1}/7のLv・凸を読み取っています…`);
+        setStatus('キャラ{0}/7のLv・凸を読み取っています…', index + 1);
         const fullText = await recognizeText(worker, makeOcrCanvas(preview, index));
         let expandedDecision = decision.accepted
           ? decision
@@ -1227,7 +1253,7 @@ function initializeMoncolleImageImport(api) {
           else level = {value:top.value, quality:.55};
         }
         const levelConflict = glyphSupported && glyphLevels[index] && fromCard && fromCard !== value
-          ? `Lv表示の読みが ${value} と ${fromCard} に分かれました` : '';
+          ? [value, fromCard] : '';
         let limit = await collectLimit(worker, index, fullText, fusedDecision.entry);
         if (small?.blank && !limit) limit = {value:0, quality:.84};
         else if (small && !limit && small.badges[0].score>=.75 && small.badges[0].score-small.badges[1].score>=.017) {
@@ -1283,7 +1309,7 @@ function initializeMoncolleImageImport(api) {
       setStatus('解析しました。要確認の枠は、候補と画像を見比べて選べます。');
     } catch (error) {
       console.error(error);
-      setStatus(`解析に失敗しました：${error.message}`);
+      setStatus('解析に失敗しました：{0}', error.message);
     } finally {
       analyzeButton.disabled = false;
     }
@@ -1358,7 +1384,7 @@ function initializeMoncolleImageImport(api) {
     const count = items.filter(item => item.catalogId).length;
     if (!count) return;
     api.applyImportedParty(items);
-    setStatus(`選択済みの${count}体を元の枠に反映しました。${count < 7 ? '要確認の枠は元の編成のままです。' : ''}`);
+    setStatus('選択済みの{0}体を元の枠に反映しました。{1}', count, count < 7 ? '要確認の枠は元の編成のままです。' : '');
   });
 
   window.addEventListener('pagehide', () => {

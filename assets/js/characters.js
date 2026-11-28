@@ -33,7 +33,7 @@ function createMoncolleCharacters(data) {
     const character = row.character ?? 'none';
     if (!Number.isFinite(hp) || hp <= 0 || !Number.isFinite(attack) || attack <= 0 || !Object.hasOwn(CHARACTERS, character))
       throw new Error('基礎ステータス・特性を確認してください ' + id);
-    const entry = { id, no, name, category, modelId, hp, attack, character, type: attackType(category) };
+    const entry = { id, no, name, nameEn: row.nameEn, category, modelId, hp, attack, character, type: attackType(category) };
     CATALOG_BY_ID[id] = entry;
     categories[category].push(entry);
     return entry;
@@ -55,7 +55,7 @@ function createMoncolleCharacters(data) {
     },
   };
 
-  function catalogLabel(c) { return c.category === 'normal' ? `No.${String(c.no).padStart(2,'0')} ${c.name}` : c.name; }
+  function catalogLabel(c, language = 'ja') { const name = language === 'en' ? c.nameEn || c.name : c.name; return c.category === 'normal' ? `No.${String(c.no).padStart(2,'0')} ${name}` : name; }
   function formatStat(n, display = 'detail') {
     if (!Number.isFinite(n) || n <= 0) return '0';
     const units = [['T',1e12],['B',1e9],['M',1e6],['K',1e3]];

@@ -1,10 +1,14 @@
 function initializeMoncolleStage(rules) {
   'use strict';
+  const { t } = moncolleLocale;
   const { CATALOG, CATALOG_BY_ID, CHARACTERS, MUTATIONS, UNITS, BOSS_MODEL,
     CATEGORY_LABELS, ATTACK_PERIODS, attackType, supportsLimitBreak,
-    catalogEntries, catalogLabel, formatStat, attackAtLevel, resolveParty } = rules;
+    catalogEntries, formatStat, attackAtLevel, resolveParty } = rules;
   const { stageCount, MODEL, estimate, rankStages, gemMultiplier, foodRates } = createMoncolleSimulation(rules);
 
+  const catalogLabel = entry => rules.catalogLabel(entry, moncolleLocale.language);
+  const matchesName = (entry, query) => [catalogLabel(entry), entry.name, entry.nameEn, entry.id]
+    .some(value => value && value.toLowerCase() === query);
   const GEM_UNITS = [['QiD',48],['QD',45],['Td',42],['Dd',39],['Ud',36],['Dc',33],['No',30],['Oc',27],['Sp',24],['Sx',21],['Qi',18],['Qa',15],['T',12],['B',9],['M',6],['K',3]];
   const STORAGE = 'stage-calculator-v19';
   const PREVIOUS_STORAGE = 'stage-calculator-v18.10-20261127';
@@ -48,7 +52,7 @@ function initializeMoncolleStage(rules) {
         manualCharacter: Object.hasOwn(CHARACTERS,c.manualCharacter) ? c.manualCharacter : 'none',
       };
     }
-    if (!c || !Object.hasOwn(UNITS,c.unit) || !Number.isFinite(Number(c.power)) || Number(c.power) < 0) throw Error('戦力データが不正です');
+    if (!c || !Object.hasOwn(UNITS,c.unit) || !Number.isFinite(Number(c.power)) || Number(c.power) < 0) throw Error(t('戦力データが不正です'));
     const character = migrateCharacter(c);
     return {
       ...emptyChar(), category:'manual', manualName:character === 'none' ? '' : (CHARACTERS[character]?.label || ''),
@@ -59,7 +63,7 @@ function initializeMoncolleStage(rules) {
   }
 
   function validate(obj) {
-    if (!obj || !Array.isArray(obj.chars) || obj.chars.length !== 7) throw Error('編成データが不正です');
+    if (!obj || !Array.isArray(obj.chars) || obj.chars.length !== 7) throw Error(t('編成データが不正です'));
     const chars = obj.chars.map(normalizeChar);
     const savedSkill = Number(obj.skill);
     const savedPremiumRate = Number(obj.premiumRate);
@@ -82,13 +86,17 @@ function initializeMoncolleStage(rules) {
 
   const $ = id => document.getElementById(id);
   const charsEl = $('chars');
-  const characterOptions = Object.entries(CHARACTERS).map(([id,c]) => `<option value="${id}">${c.label}</option>`).join('');
-  for (const category of Object.keys(CATEGORY_LABELS)) {
-    const list = document.createElement('datalist');
-    list.id = 'catalog-' + category;
-    for (const entry of catalogEntries(category)) list.append(new Option(catalogLabel(entry), catalogLabel(entry)));
-    $('catalog-lists').append(list);
+  const characterOptions = () => Object.entries(CHARACTERS).map(([id,c]) => `<option value="${id}">${t(c.label)}</option>`).join('');
+  function renderCatalogLists() {
+    $('catalog-lists').replaceChildren();
+    for (const category of Object.keys(CATEGORY_LABELS)) {
+      const list = document.createElement('datalist');
+      list.id = 'catalog-' + category;
+      for (const entry of catalogEntries(category)) list.append(new Option(catalogLabel(entry), catalogLabel(entry)));
+      $('catalog-lists').append(list);
+    }
   }
+  renderCatalogLists();
   for (const [unit] of [...GEM_UNITS].reverse()) $('targetUnit').add(new Option(unit, unit));
 
   function escapeAttribute(value) {
@@ -97,7 +105,7 @@ function initializeMoncolleStage(rules) {
   }
   function derivedHtml(r) {
     const trait = CHARACTERS[r.character]?.label || '特性なし';
-    return `HP ${formatStat(r.hp)}<br>攻撃 ${formatStat(r.power, 'bag')}${r.power > 0 ? `（${ATTACK_PERIODS[r.type]}秒に1回）` : ''}<br>${r.truePair?'真の力｜':''}${trait}`;
+    return `HP ${formatStat(r.hp)}<br>${t('攻撃 {0}', formatStat(r.power, 'bag'))}${r.power > 0 ? t('（{0}秒に1回）', ATTACK_PERIODS[r.type]) : ''}<br>${r.truePair?t('真の力｜'):''}${t(trait)}`;
   }
   function updateDerivedRows() {
     const resolved = resolveParty(state.chars, state.enemyType);
@@ -109,29 +117,29 @@ function initializeMoncolleStage(rules) {
       const entries = catalogEntries(c.category);
       const entry = CATALOG_BY_ID[c.catalogId];
       const searchValue = entry ? catalogLabel(entry) : '';
-      const catalogField = entries.length ? `<input type="search" list="catalog-${c.category}" value="${escapeAttribute(searchValue)}" placeholder="名前・No.で検索" aria-label="キャラ${i+1}のキャラ名" data-i="${i}" data-role="catalog">`
-        : `<input value="手動入力" aria-label="キャラ${i+1}の入力方式" disabled>`;
+      const catalogField = entries.length ? `<input type="search" list="catalog-${c.category}" value="${escapeAttribute(searchValue)}" placeholder="${t('名前・No.で検索')}" aria-label="${t('キャラ{0}のキャラ名', i+1)}" data-i="${i}" data-role="catalog">`
+        : `<input value="${t('手動入力')}" aria-label="${t('キャラ{0}の入力方式', i+1)}" disabled>`;
       const mutations = MUTATIONS[c.category];
-      const mutationField = mutations ? `<select aria-label="キャラ${i+1}の変異" data-i="${i}" data-k="mutation">${Object.entries(mutations).map(([id,[label]])=>`<option value="${id}" ${c.mutation===id?'selected':''}>${label}</option>`).join('')}</select>` : `<span></span>`;
+      const mutationField = mutations ? `<select aria-label="${t('キャラ{0}の変異', i+1)}" data-i="${i}" data-k="mutation">${Object.entries(mutations).map(([id,[label]])=>`<option value="${id}" ${c.mutation===id?'selected':''}>${t(label)}</option>`).join('')}</select>` : `<span></span>`;
       const hasLimitBreak = supportsLimitBreak(c.category);
       const growthFields = `<div class="growth-fields ${hasLimitBreak?'':'single'}">
-        <label class="char-number"><span>Lv</span><input type="number" min="1" max="150" step="1" value="${c.level}" aria-label="キャラ${i+1}のレベル" data-i="${i}" data-k="level"></label>
-        ${hasLimitBreak ? `<label class="char-number"><span>凸</span><input type="number" min="0" max="10" step="1" value="${c.limitBreak}" aria-label="キャラ${i+1}の凸数" data-i="${i}" data-k="limitBreak"></label>` : ''}
+        <label class="char-number"><span>Lv</span><input type="number" min="1" max="150" step="1" value="${c.level}" aria-label="${t('キャラ{0}のレベル', i+1)}" data-i="${i}" data-k="level"></label>
+        ${hasLimitBreak ? `<label class="char-number"><span>${t('凸')}</span><input type="number" min="0" max="10" step="1" value="${c.limitBreak}" aria-label="${t('キャラ{0}の凸数', i+1)}" data-i="${i}" data-k="limitBreak"></label>` : ''}
       </div>`;
       const manual = c.category === 'manual';
       const manualFields = manual ? `<div class="manual-fields">
-        <input value="${escapeAttribute(c.manualName||'')}" placeholder="キャラ名（任意）" aria-label="キャラ${i+1}の手動名" data-i="${i}" data-k="manualName">
-        <input type="number" min="0" step="any" value="${escapeAttribute(c.manualAttack)}" placeholder="Lv1攻撃" aria-label="キャラ${i+1}のLv1攻撃力" data-i="${i}" data-k="manualAttack">
-        <select aria-label="キャラ${i+1}の攻撃単位" data-i="${i}" data-k="manualAttackUnit">${Object.keys(UNITS).map(u=>`<option ${c.manualAttackUnit===u?'selected':''}>${u}</option>`).join('')}</select>
-        <input type="number" min="0" step="any" value="${escapeAttribute(c.manualHp)}" placeholder="Lv1 HP" aria-label="キャラ${i+1}のLv1 HP" data-i="${i}" data-k="manualHp">
-        <select aria-label="キャラ${i+1}のHP単位" data-i="${i}" data-k="manualHpUnit">${Object.keys(UNITS).map(u=>`<option ${c.manualHpUnit===u?'selected':''}>${u}</option>`).join('')}</select>
-        <select aria-label="キャラ${i+1}の攻撃間隔" data-i="${i}" data-k="manualType">${Object.entries(ATTACK_PERIODS).map(([type, seconds]) => `<option value="${type}" ${c.manualType===type?'selected':''}>${type==='legend'?'伝説・幻':CATEGORY_LABELS[type]}（${seconds}秒）</option>`).join('')}</select>
-        <select aria-label="キャラ${i+1}の手動特性" data-i="${i}" data-k="manualCharacter">${characterOptions.replace(`value="${c.manualCharacter}"`,`value="${c.manualCharacter}" selected`)}</select>
+        <input value="${escapeAttribute(c.manualName||'')}" placeholder="${t('キャラ名（任意）')}" aria-label="${t('キャラ{0}の手動名', i+1)}" data-i="${i}" data-k="manualName">
+        <input type="number" min="0" step="any" value="${escapeAttribute(c.manualAttack)}" placeholder="${t('Lv1攻撃')}" aria-label="${t('キャラ{0}のLv1攻撃力', i+1)}" data-i="${i}" data-k="manualAttack">
+        <select aria-label="${t('キャラ{0}の攻撃単位', i+1)}" data-i="${i}" data-k="manualAttackUnit">${Object.keys(UNITS).map(u=>`<option ${c.manualAttackUnit===u?'selected':''}>${u}</option>`).join('')}</select>
+        <input type="number" min="0" step="any" value="${escapeAttribute(c.manualHp)}" placeholder="Lv1 HP" aria-label="${t('キャラ{0}のLv1 HP', i+1)}" data-i="${i}" data-k="manualHp">
+        <select aria-label="${t('キャラ{0}のHP単位', i+1)}" data-i="${i}" data-k="manualHpUnit">${Object.keys(UNITS).map(u=>`<option ${c.manualHpUnit===u?'selected':''}>${u}</option>`).join('')}</select>
+        <select aria-label="${t('キャラ{0}の攻撃間隔', i+1)}" data-i="${i}" data-k="manualType">${Object.entries(ATTACK_PERIODS).map(([type, seconds]) => `<option value="${type}" ${c.manualType===type?'selected':''}>${t('{0}（{1}秒）', t(type==='legend'?'伝説・幻':CATEGORY_LABELS[type]), seconds)}</option>`).join('')}</select>
+        <select aria-label="${t('キャラ{0}の手動特性', i+1)}" data-i="${i}" data-k="manualCharacter">${characterOptions().replace(`value="${c.manualCharacter}"`,`value="${c.manualCharacter}" selected`)}</select>
       </div>` : '';
       const r = resolved[i];
       return `<div class="char">
-        <span class="name">キャラ${i+1}</span>
-        <select aria-label="キャラ${i+1}のカテゴリ" data-i="${i}" data-k="category">${Object.entries(CATEGORY_LABELS).map(([category, label]) => `<option value="${category}" ${c.category===category?'selected':''}>${label}</option>`).join('')}<option value="manual" ${c.category==='manual'?'selected':''}>手動</option></select>
+        <span class="name">${t('キャラ{0}', i+1)}</span>
+        <select aria-label="${t('キャラ{0}のカテゴリ', i+1)}" data-i="${i}" data-k="category">${Object.entries(CATEGORY_LABELS).map(([category, label]) => `<option value="${category}" ${c.category===category?'selected':''}>${t(label)}</option>`).join('')}<option value="manual" ${c.category==='manual'?'selected':''}>${t('手動')}</option></select>
         ${catalogField}${mutationField}
         ${growthFields}
         <div class="derived" data-derived="${i}">${derivedHtml(r)}</div>
@@ -152,13 +160,13 @@ function initializeMoncolleStage(rules) {
 
   function formatHourly(n) {
     if (!Number.isFinite(n)) return '—';
-    if (n === 0) return '0 QD/時';
+    if (n === 0) return t('0 QD/時');
     const exponent = Math.log10(Math.abs(n)) + 45;
     const found = GEM_UNITS.find(([, power]) => exponent >= power - 1e-10);
-    if (!found) return `${Number((n * 1e45).toPrecision(4)).toLocaleString('ja-JP')} ジェム/時`;
+    if (!found) return t`${Number((n * 1e45).toPrecision(4)).toLocaleString('ja-JP')} ジェム/時`;
     const [unit, power] = found;
     const scaled = n * Math.pow(10, 45 - power);
-    return `${Number(scaled.toPrecision(4)).toLocaleString('ja-JP', { maximumFractionDigits: 9 })} ${unit}/時`;
+    return t`${Number(scaled.toPrecision(4)).toLocaleString('ja-JP', { maximumFractionDigits: 9 })} ${unit}/時`;
   }
   function nextRebirthTarget(rebirth) {
     if (!Number.isInteger(rebirth) || rebirth < 0 || rebirth > 627) return null;
@@ -190,12 +198,12 @@ function initializeMoncolleStage(rules) {
   }
   function duration(hours) {
     if (!Number.isFinite(hours) || hours < 0) return '—';
-    if (hours === 0) return '0分';
-    if (hours > 1e9) return `${hours.toExponential(2)}時間`;
+    if (hours === 0) return t('0分');
+    if (hours > 1e9) return t`${hours.toExponential(2)}時間`;
     const minutes = Math.ceil(hours * 60);
-    if (minutes < 60) return `${minutes}分`;
+    if (minutes < 60) return t`${minutes}分`;
     const h = Math.floor(minutes / 60), m = minutes % 60;
-    return `${h.toLocaleString('ja-JP')}時間${m ? `${m}分` : ''}`;
+    return t`${h.toLocaleString('ja-JP')}時間${m ? t`${m}分` : ''}`;
   }
 
   let showAllGem = false, showAllFeed = false, showAllCombined = false;
@@ -257,11 +265,11 @@ function initializeMoncolleStage(rules) {
     const targetValid = Number.isFinite(targetNumber) && targetNumber >= 0 && Number.isFinite(targetQD);
     if (!valid) {
       $('best').textContent = '—'; $('hour').textContent = '—'; $('targetTime').textContent = '—';
-      $('bestSub').textContent = 'ステージ1～75から選択'; $('hourSub').textContent = '1時間あたり'; $('targetTimeSub').textContent = '現在の目標額まで';
+      $('bestSub').textContent = t('ステージ1～75から選択'); $('hourSub').textContent = t('1時間あたり'); $('targetTimeSub').textContent = t('現在の目標額まで');
       clearRankings();
-      $('status').textContent = !hasPower ? 'キャラの戦力を1体以上入力すると計算します。'
-        : !premiumValid ? '高級餌になる確率は0～25%で入力してください。'
-        : 'リバース数は0～627の整数、ジェムスキル倍率は1～4.75で入力してください。';
+      $('status').textContent = !hasPower ? t('キャラの戦力を1体以上入力すると計算します。')
+        : !premiumValid ? t('高級餌になる確率は0～25%で入力してください。')
+        : t('リバース数は0～627の整数、ジェムスキル倍率は1～4.75で入力してください。');
       setBusy(false); return;
     }
     const rates = foodRates(party, premiumInput);
@@ -269,8 +277,8 @@ function initializeMoncolleStage(rules) {
     if (!Number.isFinite(factor)) {
       clearRankings();
       $('targetTime').textContent = '—';
-      $('targetTimeSub').textContent = '現在の目標額まで';
-      $('status').textContent = '倍率が計算範囲を超えています。リバース数を小さくしてください。';
+      $('targetTimeSub').textContent = t('現在の目標額まで');
+      $('status').textContent = t('倍率が計算範囲を超えています。リバース数を小さくしてください。');
       setBusy(false); return;
     }
     const simulationRows = await simulateAllStages(party, state.enemyType, generation);
@@ -278,43 +286,43 @@ function initializeMoncolleStage(rules) {
     const { gemRows, feedRows, combinedRows } = rankStages(simulationRows, factor, rates);
     const bestGem = gemRows[0], bestFeed = feedRows[0];
     if (!bestGem || bestGem.gemScore <= 0) {
-      $('best').textContent = '—'; $('hour').textContent = '0 QD/時'; $('targetTime').textContent = '—';
-      $('bestSub').textContent = '討伐可能なステージなし'; $('hourSub').textContent = '1時間あたり'; $('targetTimeSub').textContent = '現在の目標額まで';
+      $('best').textContent = '—'; $('hour').textContent = t('0 QD/時'); $('targetTime').textContent = '—';
+      $('bestSub').textContent = t('討伐可能なステージなし'); $('hourSub').textContent = t('1時間あたり'); $('targetTimeSub').textContent = t('現在の目標額まで');
       clearRankings();
-      $('status').textContent = 'シミュレーション時間内に敵を倒せませんでした。';
+      $('status').textContent = t('シミュレーション時間内に敵を倒せませんでした。');
       setBusy(false); return;
     }
     const bestCombined = combinedRows[0];
 
     $('best').textContent = String(bestGem.stage);
-    $('bestSub').textContent = `討伐 ${bestGem.kills.toFixed(3)}体/秒・死亡 ${bestGem.deaths.toFixed(3)}回/秒`;
+    $('bestSub').textContent = t`討伐 ${bestGem.kills.toFixed(3)}体/秒・死亡 ${bestGem.deaths.toFixed(3)}回/秒`;
     $('hour').textContent = formatHourly(bestGem.hour);
-    $('hourSub').textContent = `ステージ${bestGem.stage}での予測`;
+    $('hourSub').textContent = t`ステージ${bestGem.stage}での予測`;
     $('targetTime').textContent = targetValid && targetQD > 0 && bestGem.hour > 0 ? duration(targetQD / bestGem.hour) : '—';
-    $('targetTimeSub').textContent = targetValid && targetQD > 0 ? `ステージ${bestGem.stage}での予測` : '目標額を入力してください';
+    $('targetTimeSub').textContent = targetValid && targetQD > 0 ? t`ステージ${bestGem.stage}での予測` : t('目標額を入力してください');
     const traitParty = state.enemyType === 'boss' ? party.slice(0, BOSS_MODEL.charactersPerPlayer) : party;
     const activeLovrilCount = traitParty.filter(c => Number(c.power) > 0 && c.character === 'lovril').length;
     const activeJkCount = traitParty.filter(c => Number(c.power) > 0 && c.character === 'jk').length;
     const activeKingNidraCount = traitParty.filter(c => Number(c.power) > 0 && c.character === 'kingNidra').length;
     const traitNotes = [];
     if (activeLovrilCount) {
-      traitNotes.push(`ラブリル×${activeLovrilCount}：${CHARACTERS.lovril.interval}秒ごとに自チーム全員を最大HPの${(state.enemyType === 'boss' ? CHARACTERS.lovril.bossHeal : CHARACTERS.lovril.stageHeal) * 100}%分回復（重複なし）`);
+      traitNotes.push(t`ラブリル×${activeLovrilCount}：${CHARACTERS.lovril.interval}秒ごとに自チーム全員を最大HPの${(state.enemyType === 'boss' ? CHARACTERS.lovril.bossHeal : CHARACTERS.lovril.stageHeal) * 100}%分回復（重複なし）`);
     }
     if (activeJkCount) {
       traitNotes.push(state.enemyType === 'boss'
-        ? `JK×${activeJkCount}（BOSS）：自チーム全員の回避率+5%（重複なし）・敵命中実測 ${bestGem.enemyHitRate === null ? '—' : `${(bestGem.enemyHitRate * 100).toFixed(1)}%`}`
-        : `JK×${activeJkCount}（通常）：各JKの敵ごとの初撃2倍・発動 ${formatCount(bestGem.jkBoostsPerSecond * 60)}回/分`);
+        ? t`JK×${activeJkCount}（BOSS）：自チーム全員の回避率+5%（重複なし）・敵命中実測 ${bestGem.enemyHitRate === null ? '—' : `${(bestGem.enemyHitRate * 100).toFixed(1)}%`}`
+        : t`JK×${activeJkCount}（通常）：各JKの敵ごとの初撃2倍・発動 ${formatCount(bestGem.jkBoostsPerSecond * 60)}回/分`);
     }
     if (state.enemyType === 'boss') {
       const dodgeUsers = traitParty.filter(c => Number(c.power) > 0 && Number(c.bossDodge) > 0);
-      if (dodgeUsers.length) traitNotes.push(`凸回避：${dodgeUsers.map(c => `${c.name} ${(c.bossDodge * 100).toFixed(0)}%`).join('・')}`);
-      traitNotes.push(`BOSS編成：自チーム${BOSS_MODEL.charactersPerPlayer}体／最大${BOSS_MODEL.maxPlayers}人・レイド全体${BOSS_MODEL.maxRaidCharacters}体`);
+      if (dodgeUsers.length) traitNotes.push(t`凸回避：${dodgeUsers.map(c => `${c.name} ${(c.bossDodge * 100).toFixed(0)}%`).join('・')}`);
+      traitNotes.push(t`BOSS編成：自チーム${BOSS_MODEL.charactersPerPlayer}体／最大${BOSS_MODEL.maxPlayers}人・レイド全体${BOSS_MODEL.maxRaidCharacters}体`);
     }
     if (activeKingNidraCount) {
-      traitNotes.push(`キングニドラ×${activeKingNidraCount}：1.5倍発動 ${bestGem.kingProcRate === null ? '—' : `${(bestGem.kingProcRate * 100).toFixed(1)}%`}（攻撃ごと30%）`);
+      traitNotes.push(t`キングニドラ×${activeKingNidraCount}：1.5倍発動 ${bestGem.kingProcRate === null ? '—' : `${(bestGem.kingProcRate * 100).toFixed(1)}%`}（攻撃ごと30%）`);
     }
     $('traitStatus').textContent = traitNotes.join('｜');
-    $('status').textContent = targetValid ? '' : '目標額は0以上の数値を入力してください。';
+    $('status').textContent = targetValid ? '' : t('目標額は0以上の数値を入力してください。');
     $('gemRanking').innerHTML = gemRows.slice(0, showAllGem ? 75 : 10).map((row, i) => `
       <tr><td>${i + 1}</td><td>${row.stage}</td><td>${formatHourly(row.hour)}</td>
       <td>${targetValid && targetQD > 0 && row.hour > 0 ? duration(targetQD / row.hour) : '—'}</td>
@@ -328,17 +336,17 @@ function initializeMoncolleStage(rules) {
       <td>${(row.gemRelative * 100).toFixed(1)}%</td><td>${row.foodEligible ? `${(row.foodRelative * 100).toFixed(1)}%` : '—'}</td>
       <td>${formatHourly(row.hour)}</td><td>${row.foodEligible ? formatCount(row.foodHour) : '—'}</td></tr>`).join('');
     $('feedSummary').textContent = bestFeed.foodHour > 0
-      ? `対象：ステージ46～75｜最適ステージ${bestFeed.stage}：餌 ${formatCount(bestFeed.foodHour)}/時（高級 ${formatCount(bestFeed.premiumHour)}/時・通常 ${formatCount(bestFeed.normalHour)}/時）｜餌ドロップ率 ${(rates.dropRate * 100).toFixed(0)}%・高級化率 ${(rates.premiumRate * 100).toFixed(0)}%`
-      : `対象：ステージ46～75｜この編成では餌を獲得できる敵を倒せませんでした。`;
+      ? t`対象：ステージ46～75｜最適ステージ${bestFeed.stage}：餌 ${formatCount(bestFeed.foodHour)}/時（高級 ${formatCount(bestFeed.premiumHour)}/時・通常 ${formatCount(bestFeed.normalHour)}/時）｜餌ドロップ率 ${(rates.dropRate * 100).toFixed(0)}%・高級化率 ${(rates.premiumRate * 100).toFixed(0)}%`
+      : t`対象：ステージ46～75｜この編成では餌を獲得できる敵を倒せませんでした。`;
     $('combinedSummary').textContent = bestCombined.combined > 0
-      ? `総合最適ステージ${bestCombined.stage}：総合指数 ${(bestCombined.combined * 100).toFixed(1)}（ジェム比 ${(bestCombined.gemRelative * 100).toFixed(1)}%・餌比 ${(bestCombined.foodRelative * 100).toFixed(1)}%）`
-      : 'ステージ46以上で餌を獲得できないため、総合最適ステージはありません。';
+      ? t`総合最適ステージ${bestCombined.stage}：総合指数 ${(bestCombined.combined * 100).toFixed(1)}（ジェム比 ${(bestCombined.gemRelative * 100).toFixed(1)}%・餌比 ${(bestCombined.foodRelative * 100).toFixed(1)}%）`
+      : t('ステージ46以上で餌を獲得できないため、総合最適ステージはありません。');
     setBusy(false);
   }
   function scheduleCompute() {
     clearTimeout(computeTimer);
     const generation = ++computeGeneration;
-    $('status').textContent = '計算中…';
+    $('status').textContent = t('計算中…');
     computeTimer = setTimeout(() => compute(generation), 220);
   }
   function save() {
@@ -354,7 +362,7 @@ function initializeMoncolleStage(rules) {
       const c = state.chars[index];
       const entries = catalogEntries(c.category);
       const query = el.value.trim().toLocaleLowerCase('ja-JP');
-      const exact = entries.find(entry => catalogLabel(entry).toLocaleLowerCase('ja-JP') === query || entry.name.toLocaleLowerCase('ja-JP') === query || entry.id === query);
+      const exact = entries.find(entry => matchesName(entry, query));
       if (exact) {
         c.catalogId = exact.id;
         renderCharacterRows();
@@ -416,8 +424,8 @@ function initializeMoncolleStage(rules) {
     if (el.dataset.role === 'catalog') {
       const entries = catalogEntries(c.category);
       const query = el.value.trim().toLocaleLowerCase('ja-JP');
-      const exact = entries.find(entry => catalogLabel(entry).toLocaleLowerCase('ja-JP') === query || entry.name.toLocaleLowerCase('ja-JP') === query || entry.id === query);
-      const partial = entries.filter(entry => catalogLabel(entry).toLocaleLowerCase('ja-JP').includes(query));
+      const exact = entries.find(entry => matchesName(entry, query));
+      const partial = entries.filter(entry => [catalogLabel(entry), entry.name, entry.nameEn].some(value => value?.toLowerCase().includes(query)));
       c.catalogId = (exact || (partial.length === 1 ? partial[0] : null))?.id || '';
     } else if (el.dataset.k === 'category') {
       c.category = el.value;
@@ -459,32 +467,32 @@ function initializeMoncolleStage(rules) {
   $('combinedTab').addEventListener('click', () => selectRankingTab('combined'));
   $('toggleGem').addEventListener('click', () => {
     showAllGem = !showAllGem;
-    $('toggleGem').textContent = showAllGem ? '上位10ステージのみ表示' : '全75ステージを表示';
+    $('toggleGem').textContent = showAllGem ? t('上位10ステージのみ表示') : t('全75ステージを表示');
     scheduleCompute();
   });
   $('toggleFeed').addEventListener('click', () => {
     showAllFeed = !showAllFeed;
-    $('toggleFeed').textContent = showAllFeed ? '上位10ステージのみ表示' : '全30ステージを表示';
+    $('toggleFeed').textContent = showAllFeed ? t('上位10ステージのみ表示') : t('全30ステージを表示');
     scheduleCompute();
   });
   $('toggleCombined').addEventListener('click', () => {
     showAllCombined = !showAllCombined;
-    $('toggleCombined').textContent = showAllCombined ? '上位10ステージのみ表示' : '全75ステージを表示';
+    $('toggleCombined').textContent = showAllCombined ? t('上位10ステージのみ表示') : t('全75ステージを表示');
     scheduleCompute();
   });
   $('reset').addEventListener('click', () => {
-    if (!confirm('入力を初期状態に戻しますか？')) return;
+    if (!confirm(t('入力を初期状態に戻しますか？'))) return;
     state = emptyState(); showAllGem = showAllFeed = showAllCombined = false;
-    $('toggleGem').textContent = '全75ステージを表示';
-    $('toggleFeed').textContent = '全30ステージを表示';
-    $('toggleCombined').textContent = '全75ステージを表示';
+    $('toggleGem').textContent = t('全75ステージを表示');
+    $('toggleFeed').textContent = t('全30ステージを表示');
+    $('toggleCombined').textContent = t('全75ステージを表示');
     selectRankingTab('gem');
     renderInputs(); save();
   });
   $('download').addEventListener('click', () => {
-    const blob = new Blob([JSON.stringify({ version: '19', ...state }, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ version: '19.1', ...state }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob), a = document.createElement('a');
-    a.href = url; a.download = 'moncolle-calculator-v19-settings.json'; a.click();
+    a.href = url; a.download = 'moncolle-calculator-v19.1-settings.json'; a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
   $('load').addEventListener('click', () => $('file').click());
@@ -492,7 +500,7 @@ function initializeMoncolleStage(rules) {
     const file = event.target.files[0];
     if (!file) return;
     try { state = validate(JSON.parse(await file.text())); renderInputs(); save(); }
-    catch (error) { alert(`読み込みに失敗しました：${error.message}`); }
+    catch (error) { alert(t`読み込みに失敗しました：${error.message}`); }
     event.target.value = '';
   });
 
@@ -503,7 +511,8 @@ function initializeMoncolleStage(rules) {
       no: entry.no || null,
       modelId: entry.modelId || null,
       name: entry.name,
-      label: catalogLabel(entry),
+      nameEn: entry.nameEn,
+      get label() { return catalogLabel(entry); },
       category: entry.category,
       attack: entry.attack,
       character: entry.character,
@@ -533,6 +542,14 @@ function initializeMoncolleStage(rules) {
     },
   };
 
+  window.addEventListener('moncolle-language', () => {
+    renderCatalogLists();
+    renderInputs();
+    $('toggleGem').textContent = t(showAllGem ? '上位10ステージのみ表示' : '全75ステージを表示');
+    $('toggleFeed').textContent = t(showAllFeed ? '上位10ステージのみ表示' : '全30ステージを表示');
+    $('toggleCombined').textContent = t(showAllCombined ? '上位10ステージのみ表示' : '全75ステージを表示');
+    scheduleCompute();
+  });
   renderInputs();
   scheduleCompute();
 }

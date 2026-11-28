@@ -17,7 +17,7 @@ body { margin: 0; padding: 22px 12px; }
 }
 .mode-nav {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
   gap: 6px;
   padding: 6px;
   margin: 0 0 14px;
@@ -192,3 +192,5 @@ button:disabled { opacity: .55; cursor: wait; }
 .target-amount select { width: 105px; flex: none; }
 .ranking-actions { margin-bottom: 12px; }
 .table-scroll { overflow: auto; }
+
+#language { width: auto; max-width: 8rem; align-self: center; font: inherit; padding: 7px 25px 7px 8px; border: 1px solid #b9c8d7; border-radius: 7px; color: #182538; background-color: #fff; }
